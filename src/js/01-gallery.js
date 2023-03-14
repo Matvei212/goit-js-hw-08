@@ -1,40 +1,66 @@
-// Виконуй це завдання у файлах 01-gallery.html і 01-gallery.js. Розбий його на декілька підзавдань:
-
-// Додай бібліотеку SimpleLightbox як залежність проекту, використовуючи npm (посилання на CDN з 
-// твоєї минулої роботи більше не потрібне).
-// Використовуй свій JavaScript код з попередньої домашньої роботи, але виконай рефакторинг з 
-// урахуванням того, що бібліотека була встановлена через npm (синтаксис import/export).
-// Для того щоб підключити CSS код бібліотеки в проект, необхідно додати ще один імпорт, крім того, 
-// що описаний в документації.
-
-// // Описаний в документації
-// import SimpleLightbox from "simplelightbox";
-// // Додатковий імпорт стилів
-// import "simplelightbox/dist/simple-lightbox.min.css";
-
 // Add imports above this line
+import { galleryItems } from './gallery-items';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
-import { galleryItems } from './gallery-items';
-
-const divGalleryRef = document.querySelector(".gallery");
-
-const galleryMarkupRef = createGalleryMarkup(galleryItems);
-
-divGalleryRef.insertAdjacentHTML("beforeend", galleryMarkupRef);
-
-function createGalleryMarkup(galleryItems) {
-  return galleryItems
-    .map(({ preview, original, description }) => {
-      return `
-      <a class="gallery__item" href="${original}">
-      <img class="gallery__image" src="${preview}" alt="${description}" />
-    </a>
-        `;
-    })
-    .join("");
-}
-new SimpleLightbox('.gallery a', { captionDelay: 250, captionsData: 'alt' });
 // Change code below this line
+
+
+console.log(galleryItems);
+
+
+const galleryListEl = document.querySelector(".gallery");
+galleryListEl.setAttribute('uk-lightbox', 'caption-position:bottom');
+
+console.log(galleryListEl)
+
+galleryListEl.addEventListener('click', onGalleryListElClick);
+
+function createGalleryElement(array) {
+    
+   return array.map(({ preview, original, description }) => {
+        const item = document.createElement('a');
+        
+        item.href = original;
+       item.classList.add('gallery__item');
+       item.dataset.caption = description;
+        const image = document.createElement("img");
+        image.src = preview;
+        image.classList.add('gallery__image');
+       image.alt = description;
+       image.title = description;
+       image.delay = 250;
+       image.titlePosition = 'top';
+        item.append(image);
+        
+       return item;
+    })
+   
+}
+
+const galleryElements = createGalleryElement(galleryItems);
+galleryListEl.append(...galleryElements);
+
+
+function onGalleryListElClick(e) {
+  
+    
+    
+    if (e.target.nodeName !== "IMG") {
+        return
+    };
+    
+
+    let href = (e.target.closest('a').getAttribute('href'));
+    return href;
+ 
+}
+let gallery = new SimpleLightbox('.gallery a');
+
+gallery.on('show.simplelightbox', function () {
+});
+
+gallery.on('error.simplelightbox', function (e) {
+	console.log(e);
+});
 
 console.log(galleryItems);

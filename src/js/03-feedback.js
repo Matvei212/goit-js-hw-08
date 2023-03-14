@@ -1,71 +1,58 @@
-// HTML містить розмітку форми. Напиши скрипт, який буде зберігати значення полів у локальне сховище,
-//  коли користувач щось друкує.
+import throttle from "lodash.throttle";
 
-// <form class="feedback-form" autocomplete="off">
-//   <label>
-//     Email
-//     <input type="email" name="email" autofocus />
-//   </label>
-//   <label>
-//     Message
-//     <textarea name="message" rows="8"></textarea>
-//   </label>
-//   <button type="submit">Submit</button>
-// </form>
+const form = document.querySelector('.feedback-form');
 
-// Виконуй це завдання у файлах 03-feedback.html і 03-feedback.js. Розбий його на декілька підзавдань:
+const inputEl = document.querySelector('[name ="email"]');
 
-// Відстежуй на формі подію input, і щоразу записуй у локальне сховище об'єкт з полями email і message,
-//  у яких зберігай поточні значення полів форми. Нехай ключем для сховища буде рядок
-//  "feedback-form-state".
-// Під час завантаження сторінки перевіряй стан сховища, і якщо там є збережені дані, заповнюй ними поля
-//  форми. В іншому випадку поля повинні бути порожніми.
-// Під час сабміту форми очищуй сховище і поля форми, а також виводь у консоль об'єкт з полями email,
-// message та їхніми поточними значеннями.
-// Зроби так, щоб сховище оновлювалось не частіше, ніж раз на 500 мілісекунд. Для цього додай до проекту
-//  і використовуй бібліотеку lodash.throttle.
+const textareaEl = document.querySelector('[name ="message"]');
+inputEl.setAttribute('id', 'email');
+textareaEl.setAttribute('id', 'message');
 
-import throttle from 'lodash.throttle';
+populateForm();
 
-document.addEventListener('DOMContentLoaded', function () {
-  const STORAGE_KEY = 'feedback-form-state';
+form.addEventListener('input', throttle(onFormInput, 500));
+form.addEventListener('submit', onFormSubmit);
 
-  let formData = {};
+let userStorage = {};
 
-  const feedbackFormRef = document.querySelector('.feedback-form');
-
-  feedbackFormRef.addEventListener(
-    'input',
-    throttle(getFeedbackFormState, 500)
-  );
-
-  function getFeedbackFormState(e) {
-    formData[e.target.name] = e.target.value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-  }
-  populateForm();
-
-  feedbackFormRef.addEventListener('submit', onFormSubmit);
-
-  function onFormSubmit(evt) {
-    evt.preventDefault();
-    if (feedbackFormRef[0].value === '' || feedbackFormRef[1].value === '') {
-      alert('Треба заповнити всі поля форми');
+function onFormInput(e) {
+    e.preventDefault();
+    
+    const name = e.target;
+    const value = e.target.value;
+    const attributeName = name.getAttribute("id");
+    if (attributeName === 'email') {
+         userStorage.email = value;
     } else {
-      console.log(JSON.parse(localStorage.getItem(STORAGE_KEY)));
-      feedbackFormRef.reset();
-      Object.getOwnPropertyNames(formData).forEach(key => (formData[key] = ''));
-      localStorage.removeItem(STORAGE_KEY);
+        userStorage.message = value;
     }
-  }
+    const userData = JSON.stringify(userStorage);
+    localStorage.setItem('feedback-form-state', userData); 
+   
+}
 
-  function populateForm() {
-    if (localStorage.getItem(STORAGE_KEY)) {
-      formData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+function onFormSubmit(e) {
+    e.preventDefault();
+    e.currentTarget.reset();
+    const savedData = localStorage.getItem('feedback-form-state');
+    const parsedSavedData = JSON.parse(savedData);
+    console.log("email:", parsedSavedData.email);
+    console.log("message", parsedSavedData.message);
+    localStorage.removeItem('feedback-form-state');
+}
 
-      for (let key in formData) {
-        feedbackFormRef.elements[key].value = formData[key];
-      }
+function populateForm() {
+    const savedData = localStorage.getItem('feedback-form-state');
+    if (savedData) {
+        const parsedSavedData = JSON.parse(savedData);
+        
+        inputEl.value = parsedSavedData.email;
+        
+        textareaEl.value = parsedSavedData.message;
+       if(parsedSavedData.email === undefined){
+        inputEl.value = '';  
+        } if (parsedSavedData.message === undefined) {
+            textareaEl.value = '';
     }
-  }
-});
+    } 
+}
