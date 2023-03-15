@@ -558,45 +558,27 @@ function hmrAccept(bundle, id) {
 
 },{}],"6XVkV":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _galleryItems = require("./gallery-items");
 var _simplelightbox = require("simplelightbox");
 var _simplelightboxDefault = parcelHelpers.interopDefault(_simplelightbox);
 var _simpleLightboxMinCss = require("simplelightbox/dist/simple-lightbox.min.css");
-// Change code below this line
-console.log((0, _galleryItems.galleryItems));
-const galleryListEl = document.querySelector(".gallery");
-galleryListEl.setAttribute("uk-lightbox", "caption-position:bottom");
-console.log(galleryListEl);
-galleryListEl.addEventListener("click", onGalleryListElClick);
-function createGalleryElement(array) {
-    return array.map(({ preview , original , description  })=>{
-        const item = document.createElement("a");
-        item.href = original;
-        item.classList.add("gallery__item");
-        item.dataset.caption = description;
-        const image = document.createElement("img");
-        image.src = preview;
-        image.classList.add("gallery__image");
-        image.alt = description;
-        image.title = description;
-        image.delay = 250;
-        image.titlePosition = "top";
-        item.append(image);
-        return item;
-    });
+var _galleryItems = require("./gallery-items");
+const divGalleryRef = document.querySelector(".gallery");
+const galleryMarkupRef = createGalleryMarkup((0, _galleryItems.galleryItems));
+divGalleryRef.insertAdjacentHTML("beforeend", galleryMarkupRef);
+function createGalleryMarkup(galleryItems) {
+    return galleryItems.map(({ preview , original , description  })=>{
+        return `
+      <a class="gallery__item" href="${original}">
+      <img class="gallery__image" src="${preview}" alt="${description}" />
+    </a>
+        `;
+    }).join("");
 }
-const galleryElements = createGalleryElement((0, _galleryItems.galleryItems));
-galleryListEl.append(...galleryElements);
-function onGalleryListElClick(e) {
-    if (e.target.nodeName !== "IMG") return;
-    let href = e.target.closest("a").getAttribute("href");
-    return href;
-}
-let gallery = new (0, _simplelightboxDefault.default)(".gallery a");
-gallery.on("show.simplelightbox", function() {});
-gallery.on("error.simplelightbox", function(e) {
-    console.log(e);
+new (0, _simplelightboxDefault.default)(".gallery a", {
+    captionDelay: 250,
+    captionsData: "alt"
 });
+// Change code below this line
 console.log((0, _galleryItems.galleryItems));
 
 },{"./gallery-items":"9C7dK","simplelightbox":"9ydBq","simplelightbox/dist/simple-lightbox.min.css":"kaxSc","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9C7dK":[function(require,module,exports) {

@@ -560,44 +560,34 @@ function hmrAccept(bundle, id) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _lodashThrottle = require("lodash.throttle");
 var _lodashThrottleDefault = parcelHelpers.interopDefault(_lodashThrottle);
-const form = document.querySelector(".feedback-form");
-const inputEl = document.querySelector('[name ="email"]');
-const textareaEl = document.querySelector('[name ="message"]');
-inputEl.setAttribute("id", "email");
-textareaEl.setAttribute("id", "message");
-populateForm();
-form.addEventListener("input", (0, _lodashThrottleDefault.default)(onFormInput, 500));
-form.addEventListener("submit", onFormSubmit);
-let userStorage = {};
-function onFormInput(e) {
-    e.preventDefault();
-    const name = e.target;
-    const value = e.target.value;
-    const attributeName = name.getAttribute("id");
-    if (attributeName === "email") userStorage.email = value;
-    else userStorage.message = value;
-    const userData = JSON.stringify(userStorage);
-    localStorage.setItem("feedback-form-state", userData);
-}
-function onFormSubmit(e) {
-    e.preventDefault();
-    e.currentTarget.reset();
-    const savedData = localStorage.getItem("feedback-form-state");
-    const parsedSavedData = JSON.parse(savedData);
-    console.log("email:", parsedSavedData.email);
-    console.log("message", parsedSavedData.message);
-    localStorage.removeItem("feedback-form-state");
-}
-function populateForm() {
-    const savedData = localStorage.getItem("feedback-form-state");
-    if (savedData) {
-        const parsedSavedData = JSON.parse(savedData);
-        inputEl.value = parsedSavedData.email;
-        textareaEl.value = parsedSavedData.message;
-        if (parsedSavedData.email === undefined) inputEl.value = "";
-        if (parsedSavedData.message === undefined) textareaEl.value = "";
+document.addEventListener("DOMContentLoaded", function() {
+    const STORAGE_KEY = "feedback-form-state";
+    let formData = {};
+    const feedbackFormRef = document.querySelector(".feedback-form");
+    feedbackFormRef.addEventListener("input", (0, _lodashThrottleDefault.default)(getFeedbackFormState, 500));
+    function getFeedbackFormState(e) {
+        formData[e.target.name] = e.target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
     }
-}
+    populateForm();
+    feedbackFormRef.addEventListener("submit", onFormSubmit);
+    function onFormSubmit(evt) {
+        evt.preventDefault();
+        if (feedbackFormRef[0].value === "" || feedbackFormRef[1].value === "") alert("Треба заповнити всі поля форми");
+        else {
+            console.log(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+            feedbackFormRef.reset();
+            Object.getOwnPropertyNames(formData).forEach((key)=>formData[key] = "");
+            localStorage.removeItem(STORAGE_KEY);
+        }
+    }
+    function populateForm() {
+        if (localStorage.getItem(STORAGE_KEY)) {
+            formData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            for(let key in formData)feedbackFormRef.elements[key].value = formData[key];
+        }
+    }
+});
 
 },{"lodash.throttle":"bGJVT","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bGJVT":[function(require,module,exports) {
 /**
